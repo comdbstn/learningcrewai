@@ -69,6 +69,9 @@ const Navbar = () => {
             <Link to="/learning-path" className={navLinkClasses('/learning-path')}>
               학습 과정
             </Link>
+            <Link to="/ai-assistant" className={navLinkClasses('/ai-assistant')}>
+              AI 학습 도우미
+            </Link>
             <Link to="/community" className={navLinkClasses('/community')}>
               커뮤니티
             </Link>
@@ -88,12 +91,20 @@ const Navbar = () => {
                 </button>
               </>
             ) : (
-              <Link
-                to="/signup"
-                className="btn-gradient text-white px-6 py-2 rounded-full text-sm font-medium hover:shadow-lg transition-all duration-300"
-              >
-                무료로 시작하기
-              </Link>
+              <>
+                <Link
+                  to="/login"
+                  className="text-indigo-600 border border-indigo-600 px-6 py-2 rounded-full text-sm font-medium hover:bg-indigo-50 transition-all duration-300"
+                >
+                  로그인
+                </Link>
+                <Link
+                  to="/signup"
+                  className="btn-gradient text-white px-6 py-2 rounded-full text-sm font-medium hover:shadow-lg transition-all duration-300"
+                >
+                  무료로 시작하기
+                </Link>
+              </>
             )}
           </div>
         </div>
@@ -124,6 +135,17 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               학습 과정
+            </Link>
+            <Link 
+              to="/ai-assistant" 
+              className={`block px-3 py-2 rounded-md ${
+                location.pathname === '/ai-assistant' 
+                  ? 'bg-blue-50 text-blue-600 font-medium' 
+                  : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              AI 학습 도우미
             </Link>
             <Link 
               to="/community" 
@@ -171,13 +193,22 @@ const Navbar = () => {
                 </button>
               </>
             ) : (
-              <Link
-                to="/signup"
-                className="block w-full text-left mt-2 bg-gradient-elegant text-white px-3 py-2 rounded-md text-sm font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                무료로 시작하기
-              </Link>
+              <>
+                <Link
+                  to="/login"
+                  className="block w-full text-left mt-2 border border-indigo-600 text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  로그인
+                </Link>
+                <Link
+                  to="/signup"
+                  className="block w-full text-left mt-2 bg-gradient-elegant text-white px-3 py-2 rounded-md text-sm font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  무료로 시작하기
+                </Link>
+              </>
             )}
           </div>
         </div>
