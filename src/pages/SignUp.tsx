@@ -3,17 +3,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { GraduationCap, ChevronRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-const SignUp = () => {
+const SignUp: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { signUp, signIn } = useAuth();
   const [isLogin, setIsLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    name: '',
-    confirmPassword: '',
     learningStyle: 'visual', // Default value
   });
 
@@ -28,12 +28,12 @@ const SignUp = () => {
   };
 
   const validateForm = () => {
-    if (!formData.email) return '이메일을 입력해주세요.';
-    if (!formData.password) return '비밀번호를 입력해주세요.';
+    if (!email) return '이메일을 입력해주세요.';
+    if (!password) return '비밀번호를 입력해주세요.';
     
     if (!isLogin) {
-      if (!formData.name) return '이름을 입력해주세요.';
-      if (formData.password !== formData.confirmPassword) return '비밀번호가 일치하지 않습니다.';
+      if (!name) return '이름을 입력해주세요.';
+      if (password !== confirmPassword) return '비밀번호가 일치하지 않습니다.';
     }
     
     return '';
@@ -41,33 +41,37 @@ const SignUp = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setError('');
+
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
       return;
     }
-    
-    setError('');
+
     setIsLoading(true);
     
     try {
       if (isLogin) {
-        await signIn(formData.email, formData.password);
+        await signIn(email, password);
         navigate('/dashboard');
       } else {
         await signUp({
-          email: formData.email,
-          password: formData.password,
-          name: formData.name,
+          email,
+          password,
+          name,
           learningPreferences: {
             style: formData.learningStyle
           }
         });
         navigate('/dashboard');
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '계정 생성 중 오류가 발생했습니다.');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('알 수 없는 오류가 발생했습니다.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -113,8 +117,8 @@ const SignUp = () => {
                   name="name"
                   type="text"
                   autoComplete="name"
-                  value={formData.name}
-                  onChange={handleChange}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="appearance-none relative block w-full px-4 py-3 border border-gray-300 focus:border-indigo-500 placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-300"
                   placeholder="홍길동"
                 />
@@ -130,8 +134,8 @@ const SignUp = () => {
                 name="email"
                 type="email"
                 autoComplete="email"
-                value={formData.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="appearance-none relative block w-full px-4 py-3 border border-gray-300 focus:border-indigo-500 placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-300"
                 placeholder="example@email.com"
               />
@@ -146,8 +150,8 @@ const SignUp = () => {
                 name="password"
                 type="password"
                 autoComplete={isLogin ? "current-password" : "new-password"}
-                value={formData.password}
-                onChange={handleChange}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="appearance-none relative block w-full px-4 py-3 border border-gray-300 focus:border-indigo-500 placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-300"
                 placeholder="••••••••"
               />
@@ -164,8 +168,8 @@ const SignUp = () => {
                     name="confirmPassword"
                     type="password"
                     autoComplete="new-password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="appearance-none relative block w-full px-4 py-3 border border-gray-300 focus:border-indigo-500 placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-300"
                     placeholder="••••••••"
                   />

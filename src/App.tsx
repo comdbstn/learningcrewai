@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -14,8 +14,9 @@ import Community from './pages/Community';
 import Support from './pages/Support';
 import { AuthProvider } from './contexts/AuthContext';
 import { AIAssistantPage } from './pages/AIAssistantPage';
+import NotFound from './pages/NotFound';
 
-function App() {
+const App: React.FC = () => {
   return (
     <HelmetProvider>
       <AuthProvider>
@@ -34,12 +35,13 @@ function App() {
               <Route path="/community" element={<Community />} />
               <Route path="/support" element={<Support />} />
               <Route path="/ai-assistant" element={<AIAssistantPage />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
         </Router>
       </AuthProvider>
     </HelmetProvider>
   );
-}
+};
 
 export default App;

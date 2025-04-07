@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { BookOpen, Award, Clock, TrendingUp, Calendar, BarChart, Book, CheckCircle, Trophy, Star, ArrowRight, Brain, Target, Users, Bell } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface Course {
   id: number;
@@ -40,13 +40,16 @@ interface Notification {
   read: boolean;
 }
 
-const Dashboard = () => {
+const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [showNotifications, setShowNotifications] = useState(false);
   const [learningPath, setLearningPath] = useState<any>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -157,7 +160,27 @@ const Dashboard = () => {
       setLoading(false);
     };
 
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('/api/courses');
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || '강의 목록을 불러오는데 실패했습니다.');
+        }
+
+        setCourses(data.courses);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('알 수 없는 오류가 발생했습니다.');
+        }
+      }
+    };
+
     loadDashboardData();
+    fetchCourses();
   }, [user]);
 
   const getPriorityColor = (priority: string) => {
@@ -183,8 +206,19 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">오류 발생</h2>
+          <p className="text-gray-600">{error}</p>
+        </div>
       </div>
     );
   }
@@ -475,6 +509,76 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Courses Grid */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">수강 중인 강의</h2>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {courses.map((course) => (
+            <div
+              key={course.id}
+              className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-300"
+            >
+              <div className="px-4 py-5 sm:p-6">
+                <h3 className="text-lg font-medium text-gray-900">
+                  {course.title}
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  {course.description}
+                </p>
+                <div className="mt-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-500">
+                      진행률
+                    </span>
+                    <span className="text-sm font-medium text-primary-600">
+                      {course.progress}%
+                    </span>
+                  </div>
+                  <div className="mt-2 w-full bg-gray-200 rounded-full h-2.5">
+                    <div
+                      className="bg-primary-600 h-2.5 rounded-full"
+                      style={{ width: `${course.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500">
+                    마지막 학습: {course.lastAccessed}
+                  </p>
+                </div>
+                <div className="mt-5">
+                  <button
+                    onClick={() => navigate(`/course/${course.id}`)}
+                    className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  >
+                    강의 보기
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {courses.length === 0 && (
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-gray-900">
+              아직 수강 중인 강의가 없습니다
+            </h3>
+            <p className="mt-2 text-sm text-gray-500">
+              새로운 강의를 찾아보세요.
+            </p>
+            <div className="mt-6">
+              <button
+                onClick={() => navigate('/courses')}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              >
+                강의 찾아보기
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
